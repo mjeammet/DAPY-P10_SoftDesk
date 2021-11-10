@@ -42,6 +42,9 @@ class Issue(models.Model):
     assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
     created_time = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        ordering = ['created_time']
+
 
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True)
@@ -49,3 +52,6 @@ class Comment(models.Model):
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     issue_id = models.ForeignKey(to=Issue, on_delete=models.CASCADE, related_name='comments')
     created_time = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_time']
