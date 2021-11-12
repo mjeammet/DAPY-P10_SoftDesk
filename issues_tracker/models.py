@@ -1,6 +1,7 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
+from django.db.models.fields import related
 
 PRIORITY_LIST = ["Low", "Medium", "High"]
 
@@ -21,6 +22,12 @@ class Status(models.TextChoices):
     TODO = "A faire"
     ONGOING = "En cours"
     DONE = "Terminé"
+
+
+PERMISSIONS = {
+    ('AUTHOR', 'author')
+    ('CONTRIBUTOR', 'contributor')
+}
 
 
 class Project(models.Model):
@@ -49,3 +56,10 @@ class Comment(models.Model):
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     issue_id = models.ForeignKey(to=Issue, on_delete=models.CASCADE, related_name='comments')
     created_time = models.DateTimeField(auto_now_add=True)
+
+
+class Contributors(models.Model):
+    user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    project_id = models.ForeignKey(to=Project, on_delete=models.CASCADE)
+    permission = models.CharField(choices=PERMISSIONS, max_length=11, blank=True, null=True)
+    role = models.CharField(max_length=128, blank=True, null=True)
