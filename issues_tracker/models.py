@@ -56,3 +56,10 @@ class Comment(models.Model):
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     issue_id = models.ForeignKey(to=Issue, on_delete=models.CASCADE, related_name='comments')
     created_time = models.DateTimeField(auto_now_add=True)
+
+
+class Contributor(models.Model):
+    user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    project_id = models.ForeignKey(to=Project, on_delete=models.CASCADE)
+    permission = models.CharField(choices=PERMISSIONS, max_length=11, blank=True, null=True)
+    role = models.CharField(max_length=128, blank=True, null=True)
