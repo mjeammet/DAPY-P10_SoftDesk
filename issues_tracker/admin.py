@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import User, Project, Issue, Comment
+from .models import User, Project, Issue, Comment, Contributor
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -16,4 +16,9 @@ class IssueAdmin(admin.ModelAdmin):
 
 @admin.register(Comment)
 class CommentAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Contributor)
+class ContributorAdmin(admin.ModelAdmin):
     pass
