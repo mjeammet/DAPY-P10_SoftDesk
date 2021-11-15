@@ -43,7 +43,7 @@ class Issue(models.Model):
     desc = models.CharField(max_length=2048)
     tag = models.CharField(max_length=150)
     # priority = models.CharField(max_length=10)
-    # project_id = models.ForeignKey()
+    project_id = models.ForeignKey(to=Project, related_name='issues', on_delete=models.CASCADE, blank=False, null=False)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.TODO)
     author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
@@ -62,6 +62,7 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['created_time']
+
 
 class Contributor(models.Model):
     user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
