@@ -1,13 +1,13 @@
 from django.shortcuts import render
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 
 from issues_tracker.models import Project, Issue, Comment
-<<<<<<< HEAD
-from issues_tracker.serializers import ProjectListSerializer, IssueListSerializer, CommentListSerializer
-=======
 from issues_tracker.serializers import IssueDetailSerializer, ProjectDetailSerializer, ProjectListSerializer, IssueListSerializer, CommentListSerializer
 
->>>>>>> 830e6de2fc14022f3fa3dfa5e1e3fdd49d949899
+# AUTHENTICATION RELATED CLASSES
+class SignUpViewset(ViewSet):
+    pass 
+
 
 class ProjectViewset(ReadOnlyModelViewSet):
 
@@ -44,23 +44,4 @@ class CommentViewset(ReadOnlyModelViewSet):
     serializer_class = CommentListSerializer
 
     def get_queryset(self):
-<<<<<<< HEAD
-        return Project.objects.all()
-
-
-class IssueViewset(ReadOnlyModelViewSet):
-
-    serializer_class = IssueListSerializer
-
-    def get_queryset(self):
-        return Issue.objects.filter(status="ONGOING")
-
-
-class CommentViewset(ReadOnlyModelViewSet):
-
-    serializer_class = CommentListSerializer
-
-    def get_queryset(self):
-=======
->>>>>>> 830e6de2fc14022f3fa3dfa5e1e3fdd49d949899
         return Comment.objects.all()
