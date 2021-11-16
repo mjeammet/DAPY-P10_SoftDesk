@@ -1,6 +1,21 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from issues_tracker.models import Project, Issue, Comment
+from issues_tracker.models import Project, Issue, Comment, Contributor, User
+
+
+class UserSerializer(ModelSerializer):
+
+    class Meta:
+        model = User
+        field = ['username', 'password']
+
+
+class ContributorSerializer(ModelSerializer):
+
+    class Meta: 
+        model = Contributor
+        fields = ['user_id', 'project_id', 'permission', 'role']
+
 
 class ProjectListSerializer(ModelSerializer):
 
@@ -45,3 +60,9 @@ class CommentListSerializer(ModelSerializer):
         model = Comment
         fields = ['comment_id', 'author_user_id', 'created_time', 'issue_id']
 
+
+class CommentDetailSerializer(ModelSerializer):
+
+    class Meta: 
+        model = Comment
+        fields = ['comment_id', 'author_user_id', 'created_time', 'issue_id']
