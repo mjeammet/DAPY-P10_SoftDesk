@@ -35,7 +35,7 @@ class Project(models.Model):
     title = models.CharField(max_length=150)
     description = models.CharField(max_length=2048)
     type = models.CharField(max_length=10, choices=Types.choices, default=Types.__empty__)
-    author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
+    author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
 
 
 class Issue(models.Model):
@@ -43,10 +43,10 @@ class Issue(models.Model):
     desc = models.CharField(max_length=2048)
     tag = models.CharField(max_length=150)
     # priority = models.CharField(max_length=10)
-    project_id = models.ForeignKey(to=Project, related_name='issues', on_delete=models.CASCADE, blank=False, null=False)
+    project = models.ForeignKey(to=Project, related_name='issues', on_delete=models.CASCADE, blank=False, null=False)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.TODO)
-    author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    assignee_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
+    author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    assignee_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -56,8 +56,8 @@ class Issue(models.Model):
 class Comment(models.Model):
     comment_id = models.IntegerField(primary_key=True)
     description = models.CharField(max_length=2048)
-    author_user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
-    issue_id = models.ForeignKey(to=Issue, on_delete=models.CASCADE, related_name='comments')
+    author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
+    issue = models.ForeignKey(to=Issue, on_delete=models.CASCADE, related_name='comments')
     created_time = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -65,7 +65,7 @@ class Comment(models.Model):
 
 
 class Contributor(models.Model):
-    user_id = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    project_id = models.ForeignKey(to=Project, on_delete=models.CASCADE)
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
     permission = models.CharField(choices=PERMISSIONS, max_length=11, blank=True, null=True)
     role = models.CharField(max_length=128, blank=True, null=True)
