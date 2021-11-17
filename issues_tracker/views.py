@@ -5,7 +5,7 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import serializers
 
-from issues_tracker.models import User, Project, Issue, Comment, Contributor
+from issues_tracker.models import PERMISSIONS, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
     UserSerializer, ContributorSerializer, 
     ProjectDetailSerializer, ProjectListSerializer, 
@@ -30,19 +30,19 @@ from issues_tracker.serializers import (
 #         return value
 
 
-class SignUpView(APIView):
+class SignUpView(CreateAPIView):
     
     serializer_class = UserSerializer
 
     def get(self):
         return User.objects.all()
 
-    def post(self, request):
-        user = request.data
-        serializer = UserSerializer(data = request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        # return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # def post(self, request):
+    #     user = request.data
+    #     serializer = UserSerializer(data = request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
+    #     # return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class LogInView(GenericAPIView):
@@ -73,25 +73,33 @@ class MultipleSerializerMixin:
     detail_serializer_class = None
 
     def get_serializer_class(self):
-        if self.action == 'retrieve' and self.detail_serializer_class is not None:
+        if self.action in ['retrieve', 'create'] and self.detail_serializer_class is not None:
             # Si l'action demandée est le détail alors nous retournons le serializer de détail
             return self.detail_serializer_class
         return super().get_serializer_class()
 
-class ProjectViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
+class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Project.objects.filter(id__in=Contributor.objects.filter())
+        user = self.request.user
+        return Project.objects.filter(project_id__in=[project.id for project in Contributor.objects.filter(user=user)])
 
-    def post(self):
-        pass
+    def perform_create(self, serializer):
+        """ #TODO use CreateModelMixin (from rest_framework.mixins) instead."""
+        user = self.request.user
+        project = serializer.save(author_user=user)
+        Contributor.objects.create(
+            user = user,
+            project = project,
+            permission = PERMISSIONS[0]
+        )
 
 
-class IssueViewset(ReadOnlyModelViewSet):
+class IssueViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
 
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer
@@ -101,7 +109,7 @@ class IssueViewset(ReadOnlyModelViewSet):
         return Issue.objects.filter(project_id=project_id)
 
 
-class CommentViewset(ReadOnlyModelViewSet):
+class CommentViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
 
     serializer_class = CommentListSerializer
     detail_serializer_class = CommentDetailSerializer
