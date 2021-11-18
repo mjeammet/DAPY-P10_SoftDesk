@@ -40,6 +40,10 @@ class Project(models.Model):
     def __str__(self):
         return self.title
 
+    @property
+    def active_issues_count(self):
+        return self.issues.exclude(status=Status.DONE).count()
+
 
 class Issue(models.Model):
     title = models.CharField(max_length=150)

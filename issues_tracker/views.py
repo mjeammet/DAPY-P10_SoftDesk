@@ -18,20 +18,8 @@ from issues_tracker.serializers import (
 #   AUTHENTICATION-RELATED CLASSES  #
 #-----------------------------------#
 
-# class SignUpView(ModelViewSet):
 
-#     serializer_class = UserSerializer
-
-#     def get_queryset(self):
-#         return User.objects.all()
-
-#     def validate_username(self, value):
-#         if User.objects.filter(username=value).exists():
-#             raise serializers.ValidationError("Username already exists.")
-#         return value
-
-
-class SignUpView(ModelViewSet, CreateAPIView):
+class SignUpView(ModelViewSet):
     
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
@@ -39,10 +27,9 @@ class SignUpView(ModelViewSet, CreateAPIView):
     # def get(self):
     #     return User.objects.all()
 
-    def perform_create(self, request):
-        print("\n\nBon ça marche ou bien?")
-        # user = request.data
+    def create(self, request):
         serializer = UserSerializer(data = request.data)
+        
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

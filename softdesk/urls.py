@@ -18,7 +18,7 @@ comments_router.register('comments', CommentViewset, basename='comments')
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),
-    path('signup/', SignUpView.as_view({'post': 'perform_create'}), name='signup'),
+    path('signup/', SignUpView.as_view({'post': 'create'}), name='signup'),
     path('api/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include(router.urls)),
