@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import serializers, status
 
-from issues_tracker.models import PERMISSIONS, User, Project, Issue, Comment, Contributor
+from issues_tracker.models import Permissions, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
     UserSerializer, ContributorSerializer, 
     ProjectDetailSerializer, ProjectListSerializer, 
@@ -28,26 +28,14 @@ class SignUpView(ModelViewSet):
     #     return User.objects.all()
 
     def create(self, request):
-        serializer = UserSerializer(data = request.data)
-        
+        serializer = UserSerializer(data = request.data)        
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-
-class ContributorsViewset(ModelViewSet):
-
-    serializer_class = ContributorSerializer
-    # detail_serializer_class = UserDetailSerializer
-
-    def get_queryset(self):
-        return Contributor.objects.all()
-
-
 #-----------------------------------#
 #       PROJECTS-RELATED VIEWS      #
 #-----------------------------------#
-
 
 class MultipleSerializerMixin:
     """Mixin to distinguish list from detail serializer."""
@@ -77,8 +65,18 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
         Contributor.objects.create(
             user = user,
             project = project,
-            permission = PERMISSIONS[0]
+            permission = Permissions.AUTHOR
         )
+
+
+class ContributorsViewset(ModelViewSet):
+
+    serializer_class = ContributorSerializer
+    # detail_serializer_class = UserDetailSerializer
+
+    def get_queryset(self):
+        project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        return Contributor.objects.filter(project_id=project_id)
 
 
 class IssueViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):

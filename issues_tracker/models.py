@@ -23,11 +23,9 @@ class Status(models.TextChoices):
     ONGOING = "En cours"
     DONE = "Terminé"
 
-
-PERMISSIONS = [
-    ('AUTHOR', 'author'),
-    ('CONTRIBUTOR', 'contributor')
-]
+class Permissions(models.TextChoices):
+    AUTHOR = 'Author'
+    CONTRIBUTOR = 'Contributor'
 
 
 class Project(models.Model):
@@ -80,5 +78,8 @@ class Comment(models.Model):
 class Contributor(models.Model):
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
-    permission = models.CharField(choices=PERMISSIONS, max_length=11, blank=True, null=True)
+    permission = models.CharField(choices=Permissions.choices, max_length=11, blank=False, null=False, default=Permissions.CONTRIBUTOR)
     role = models.CharField(max_length=128, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user} is {self.permission.lower()} on P{self.project_id}'
