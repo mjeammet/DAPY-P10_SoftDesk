@@ -7,7 +7,7 @@ class UserSerializer(ModelSerializer):
 
     class Meta:
         model = User
-        field = ['username', 'password']
+        fields = ['username', 'password']
 
 
 class ContributorSerializer(ModelSerializer):
@@ -30,7 +30,8 @@ class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['project_id', 'title', 'type', 'author_user_id', 'description']
+        fields = '__all__'
+        # fields = ['project_id', 'title', 'type'] 
 
 
 class IssueListSerializer(ModelSerializer):

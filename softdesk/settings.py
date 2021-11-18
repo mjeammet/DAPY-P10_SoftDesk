@@ -132,4 +132,8 @@ AUTH_USER_MODEL = 'issues_tracker.User'
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10,
+    'DEFAULT_AUTHENTICATION_CLASSES': ('rest_framework_simplejwt.authentication.JWTAuthentication',)
 }
+
+# if experiencing CSRF Token errors on Postman:
+# https://kartikeyarana.medium.com/how-to-resolve-the-django-postman-csrf-token-error-3e6399bb5faa

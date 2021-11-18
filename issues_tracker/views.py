@@ -2,8 +2,9 @@ from django.shortcuts import render, get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import serializers
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework import serializers, status
 
 from issues_tracker.models import PERMISSIONS, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
@@ -30,27 +31,21 @@ from issues_tracker.serializers import (
 #         return value
 
 
-class SignUpView(CreateAPIView):
+class SignUpView(ModelViewSet, CreateAPIView):
     
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
-    def get(self):
-        return User.objects.all()
+    # def get(self):
+    #     return User.objects.all()
 
-    # def post(self, request):
-    #     user = request.data
-    #     serializer = UserSerializer(data = request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
-    #     # return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-
-class LogInView(GenericAPIView):
-
-    serializer_class = UserSerializer
-
-    def post(self):
-        return    
+    def perform_create(self, request):
+        print("\n\nBon ça marche ou bien?")
+        # user = request.data
+        serializer = UserSerializer(data = request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class ContributorsViewset(ModelViewSet):
@@ -73,7 +68,7 @@ class MultipleSerializerMixin:
     detail_serializer_class = None
 
     def get_serializer_class(self):
-        if self.action in ['retrieve', 'create'] and self.detail_serializer_class is not None:
+        if self.action in 'retrieve' and self.detail_serializer_class is not None:
             # Si l'action demandée est le détail alors nous retournons le serializer de détail
             return self.detail_serializer_class
         return super().get_serializer_class()

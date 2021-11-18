@@ -27,7 +27,7 @@ class Status(models.TextChoices):
 PERMISSIONS = [
     ('AUTHOR', 'author'),
     ('CONTRIBUTOR', 'contributor')
-] 
+]
 
 
 class Project(models.Model):
@@ -36,6 +36,9 @@ class Project(models.Model):
     description = models.CharField(max_length=2048)
     type = models.CharField(max_length=10, choices=Types.choices, default=Types.__empty__)
     author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
+
+    def __str__(self):
+        return self.title
 
 
 class Issue(models.Model):
@@ -48,6 +51,9 @@ class Issue(models.Model):
     author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     assignee_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
     created_time = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
 
     class Meta:
         ordering = ['created_time']
@@ -62,6 +68,9 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ['created_time']
+
+    def __str__(self):
+        return self.comment_id
 
 
 class Contributor(models.Model):
