@@ -28,7 +28,8 @@ class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['project_id', 'title', 'description', 'type', 'active_issues_count', 'author_user']
+        fields = ['title', 'description', 'type', 'active_issues_count', 'author_user']
+        read_only = ['project_id']
         # fields = '__all__'
 
 

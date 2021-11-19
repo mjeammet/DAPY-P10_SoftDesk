@@ -43,10 +43,11 @@ class MultipleSerializerMixin:
     detail_serializer_class = None
 
     def get_serializer_class(self):
-        if self.action in 'retrieve' and self.detail_serializer_class is not None:
+        if self.action in ['retrieve', 'update', 'partial_update', 'create'] and self.detail_serializer_class is not None:
             # Si l'action demandée est le détail alors nous retournons le serializer de détail
             return self.detail_serializer_class
         return super().get_serializer_class()
+
 
 class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
@@ -55,11 +56,17 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user = self.request.user
-        return Project.objects.filter(project_id__in=[project.id for project in Contributor.objects.filter(user=user)])
+        user_projects = [project.id for project in Contributor.objects.filter(user=self.request.user)]
+        queryset = Project.objects.filter(project_id__in=user_projects)
+         
+        if self.request.GET.get('project_id'):
+            project_id = self.request.GET.get('project_id')
+            queryset = Project.objects.filter(project_id=project_id)
+            self.check_object_permissions(self.request, queryset)
+        return queryset
 
     def perform_create(self, serializer):
-        """ #TODO use CreateModelMixin (from rest_framework.mixins) instead."""
+        """POST method to create a new project."""
         user = self.request.user
         project = serializer.save(author_user=user)
         Contributor.objects.create(
