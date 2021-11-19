@@ -37,7 +37,7 @@ class IssueListSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['title', 'assignee_user_id', 'created_time']
+        fields = ['id', 'title', 'assignee_user_id', 'created_time']
 
 
 class IssueDetailSerializer(ModelSerializer):
