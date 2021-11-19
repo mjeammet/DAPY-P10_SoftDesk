@@ -58,12 +58,7 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     def get_queryset(self):
         users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
         queryset = Project.objects.filter(project_id__in=users_projects)
-        # queryset = Project.objects.all()
-        # TODO remove permission to edit projects where user is not a contributor
-        # if self.request.GET.get('project_id'):
-        #     project_id = self.request.GET.get('project_id')
-        #     queryset = Project.objects.filter(project_id=project_id)
-        #     self.check_object_permissions(self.request, queryset)
+        # TODO handle permissions (should not access/edit if not contributor, should not delete if not author)
         return queryset
 
     # def get_permissions(self):
@@ -97,6 +92,12 @@ class ContributorsViewset(ModelViewSet):
     def get_queryset(self):
         project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         return Contributor.objects.filter(project_id=project_id)
+
+    def perform_create(self, serializer):
+        submitted_username = self.request.data.get('username')
+        added_user = User.objects.get(username=submitted_username)
+        project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        project = serializer.save(user=added_user, project_id=project_id, permission=Permissions.CONTRIBUTOR)
 
 
 class IssueViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
