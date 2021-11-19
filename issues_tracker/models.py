@@ -36,7 +36,7 @@ class Project(models.Model):
     author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
 
     def __str__(self):
-        return self.title
+        return f'{self.title} (P#{self.project_id})'
 
     @property
     def active_issues_count(self):

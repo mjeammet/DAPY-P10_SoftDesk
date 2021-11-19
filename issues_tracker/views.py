@@ -12,6 +12,7 @@ from issues_tracker.serializers import (
     ProjectDetailSerializer, ProjectListSerializer, 
     IssueListSerializer, IssueDetailSerializer, 
     CommentListSerializer, CommentDetailSerializer)
+from issues_tracker.permissions import IsProjectOwner
 
 
 #-----------------------------------#
@@ -53,17 +54,23 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
-    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        user_projects = [project.id for project in Contributor.objects.filter(user=self.request.user)]
-        queryset = Project.objects.filter(project_id__in=user_projects)
+        users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
+        queryset = Project.objects.filter(project_id__in=users_projects)
+        # queryset = Project.objects.all()
         # TODO remove permission to edit projects where user is not a contributor
         # if self.request.GET.get('project_id'):
         #     project_id = self.request.GET.get('project_id')
         #     queryset = Project.objects.filter(project_id=project_id)
         #     self.check_object_permissions(self.request, queryset)
         return queryset
+
+    # def get_permissions(self):
+    #     permission_classes = [IsAuthenticated]
+
+    #     if self.action == 'destroy':
+    #         permission_classes.append(IsProjectOwner)
 
     def perform_create(self, serializer):
         """POST method to create a new project."""
@@ -75,8 +82,11 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
             permission = Permissions.AUTHOR
         )
 
+    # TODO check if I can use decorators to specify which method and/or give specific permission_classes to method
+    # @api_view(['POST'])
+    # @permission_classes([IsProjectOwner])
     # def destroy(self, request, pk=None):
-    #     print("\n\nBON !!_\n\n")
+    #     super().destroy(request, pk=None)
 
 
 class ContributorsViewset(ModelViewSet):
