@@ -6,6 +6,8 @@ from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import serializers, status
+from rest_framework.decorators import api_view
+from rest_framework.exceptions import APIException
 
 from issues_tracker.models import Permissions, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
@@ -84,11 +86,11 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     # def destroy(self, request, pk=None):
     #     super().destroy(request, pk=None)
 
-from rest_framework.exceptions import APIException
 
 class ContributorsViewset(ModelViewSet):
 
     serializer_class = ContributorSerializer
+    # detail_serializer_class = UserSerializer
 
     def get_queryset(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
@@ -112,12 +114,20 @@ class ContributorsViewset(ModelViewSet):
             except User.DoesNotExist:
                 raise APIException("User doesn't exist")
 
-    def perform_destroy(self, serializer):
-        print("\n\nTEST\n")
-        pass
+    # TODO Ask if id should be id of user to remove or id of contribution
+
+    # @api_view(['DELETE'])
+    # def remove_contributor(self, pk=None):
+    #     print("\n\nDELETE TEST\n")
+
+    # @api_view(['DELETE'])
+    # @permission_classes(...)
+    # def destroy(self, request, pk=None):
+    #     print("\n\nANOTHER TEST\n")
+    #     return Response()
 
 
-class IssueViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
+class IssueViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer

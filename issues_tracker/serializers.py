@@ -17,9 +17,8 @@ class ContributorSerializer(ModelSerializer):
 
     class Meta: 
         model = Contributor
-        fields = ['user_id', 'project_id', 'permission', 'role']
-        # fields = '__all__'
-
+        # fields = ['user_id', 'project_id', 'permission', 'role']
+        fields = '__all__'
 
 class ProjectListSerializer(ModelSerializer):
 
@@ -32,8 +31,10 @@ class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = '__all__'
-        read_only = ['project_id']
+        # fields = ['__all__']
+        fields = ['project_id', 'title', 'description', 'type', 'author_user', 'active_issues_count']
+        # Can't put '__all__' because it doesn't include the 'active_issues_count' property
+        read_only = ['project_id', 'active_issues_count']
 
 
 class IssueListSerializer(ModelSerializer):

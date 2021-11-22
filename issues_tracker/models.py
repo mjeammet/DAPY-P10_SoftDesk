@@ -19,7 +19,7 @@ class Types(models.TextChoices):
 
 
 class Status(models.TextChoices):
-    TODO = "A faire"
+    TODO = "Todo"
     ONGOING = "En cours"
     DONE = "Terminé"
 
@@ -36,7 +36,7 @@ class Project(models.Model):
     author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='projects')
 
     def __str__(self):
-        return f'{self.title} (P#{self.project_id})'
+        return f'{self.title} (P{self.project_id})'
 
     @property
     def active_issues_count(self):
@@ -47,7 +47,7 @@ class Issue(models.Model):
     # issue_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=150)
     desc = models.CharField(max_length=2048)
-    tag = models.CharField(max_length=150)
+    tag = models.CharField(max_length=150, blank=True, null=True)
     # priority = models.CharField(max_length=10)
     project = models.ForeignKey(to=Project, related_name='issues', on_delete=models.CASCADE, blank=False, null=False)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.TODO)
@@ -74,7 +74,6 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.comment_id
-
 
 class Contributor(models.Model):
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
