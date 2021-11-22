@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.template.defaultfilters import add
 from rest_framework.views import APIView
 from rest_framework.generics import CreateAPIView, GenericAPIView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
@@ -83,21 +84,37 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     # def destroy(self, request, pk=None):
     #     super().destroy(request, pk=None)
 
+from rest_framework.exceptions import APIException
 
 class ContributorsViewset(ModelViewSet):
 
     serializer_class = ContributorSerializer
-    # detail_serializer_class = UserDetailSerializer
 
     def get_queryset(self):
-        project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
-        return Contributor.objects.filter(project_id=project_id)
+        project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        # return Contributor.objects.filter(project=project)
+        return project.users.all()
 
     def perform_create(self, serializer):
         submitted_username = self.request.data.get('username')
         added_user = User.objects.get(username=submitted_username)
-        project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
-        project = serializer.save(user=added_user, project_id=project_id, permission=Permissions.CONTRIBUTOR)
+        project_id = Project.objects.get(pk=self.kwargs['project_pk'])
+        # if project_id:
+        if Contributor.objects.filter(user=added_user, project_id=project_id).exists():
+            raise APIException("User already attached to project")
+        else:
+            try:
+                serializer.save(user=added_user, project=project_id, permission=Permissions.CONTRIBUTOR)
+            # for some reasons, does not exist are not caught
+            # TODO Handle unknown project / unknown user addition
+            except Project.DoesNotExist:
+                raise APIException(f"Project '{project_id}' does not exist.")
+            except User.DoesNotExist:
+                raise APIException("User doesn't exist")
+
+    def perform_destroy(self, serializer):
+        print("\n\nTEST\n")
+        pass
 
 
 class IssueViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):

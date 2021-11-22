@@ -78,7 +78,7 @@ class Comment(models.Model):
 
 class Contributor(models.Model):
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    project = models.ForeignKey(to=Project, on_delete=models.CASCADE)
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="users")
     permission = models.CharField(choices=Permissions.choices, max_length=11, blank=False, null=False, default=Permissions.CONTRIBUTOR)
     role = models.CharField(max_length=128, blank=True, null=True)
 

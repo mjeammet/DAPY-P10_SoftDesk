@@ -1,3 +1,4 @@
+from django.db.models.base import Model
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from issues_tracker.models import Project, Issue, Comment, Contributor, User
@@ -12,9 +13,12 @@ class UserSerializer(ModelSerializer):
 
 class ContributorSerializer(ModelSerializer):
 
+    # user_id = serializers.ForeignKey()
+
     class Meta: 
         model = Contributor
         fields = ['user_id', 'project_id', 'permission', 'role']
+        # fields = '__all__'
 
 
 class ProjectListSerializer(ModelSerializer):
@@ -28,9 +32,8 @@ class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['title', 'description', 'type', 'active_issues_count', 'author_user']
+        fields = '__all__'
         read_only = ['project_id']
-        # fields = '__all__'
 
 
 class IssueListSerializer(ModelSerializer):
@@ -46,7 +49,7 @@ class IssueDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['title', 'desc', 'tag', 'status', 'author_user_id', 'assignee_user_id', 'created_time', 'comments']
+        fields = '__all__'
 
     # def get_comments(self, instance):
     #     queryset = instance.comments.all()
