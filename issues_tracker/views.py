@@ -15,7 +15,7 @@ from issues_tracker.serializers import (
     ProjectDetailSerializer, ProjectListSerializer, 
     IssueListSerializer, IssueDetailSerializer, 
     CommentSerializer)
-from issues_tracker.permissions import IsProjectOwner
+from issues_tracker.permissions import IsProjectOwner, IsProjectAuthorized
 
 
 #-----------------------------------#
@@ -56,21 +56,22 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsProjectAuthorized]
 
     def get_queryset(self):
+        return Project.objects.all()
         users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
         queryset = Project.objects.filter(project_id__in=users_projects)
         # TODO handle permissions (should not access/edit if not contributor, should not delete if not author)
         return queryset
 
     # def get_permissions(self):
+    #     if self.action == 
     #     if self.action == 'destroy':
     #         self.permission_classes.append(IsProjectOwner)
     #     elif self.action == 'retrieve':
     #         self.permission_classes.append(IsProjectOwner)
 
-    
     def perform_create(self, serializer):
         """POST method to create a new project."""
         user = self.request.user
@@ -91,6 +92,7 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 class ContributorsViewset(ModelViewSet):
 
     serializer_class = ContributorSerializer
+    permission_classes = [IsProjectAuthorized]
     # detail_serializer_class = UserSerializer
 
     def get_queryset(self):
@@ -140,7 +142,7 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer
-    permissions = [IsProjectOwner]
+    permission_classes = [IsProjectAuthorized]
 
     def get_queryset(self):
         project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
@@ -157,6 +159,7 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
 class CommentViewset(ModelViewSet):
 
     serializer_class = CommentSerializer
+    permission_classes = [IsProjectAuthorized]
 
     def get_queryset(self):
         issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'])

@@ -41,7 +41,7 @@ class IssueListSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['id', 'title', 'assignee_user_id', 'created_time']
+        fields = ['id', 'title', 'author_user_id', 'created_time', 'assignee_user_id']
 
 
 class IssueDetailSerializer(ModelSerializer):
@@ -64,6 +64,6 @@ class CommentSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['issue_id', 'comment_id', 'description', 'author_user_id', 'created_time']
+        fields = ['project_id', 'issue_id', 'comment_id', 'description', 'author_user_id', 'created_time']
         # Can't "fields = '__all__'" because then read_only doesn't work anymore :/
-        read_only = ['author_user', 'issue']
+        read_only = ['project_id', 'author_user', 'issue']

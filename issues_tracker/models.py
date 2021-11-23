@@ -88,3 +88,7 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.comment_id
+
+    @property
+    def project_id(self):
+        return int(self.issue.project.id)
