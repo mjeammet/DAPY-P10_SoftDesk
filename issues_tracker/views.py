@@ -56,6 +56,7 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
@@ -64,11 +65,12 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
         return queryset
 
     # def get_permissions(self):
-    #     permission_classes = [IsAuthenticated]
-
     #     if self.action == 'destroy':
-    #         permission_classes.append(IsProjectOwner)
+    #         self.permission_classes.append(IsProjectOwner)
+    #     elif self.action == 'retrieve':
+    #         self.permission_classes.append(IsProjectOwner)
 
+    
     def perform_create(self, serializer):
         """POST method to create a new project."""
         user = self.request.user
@@ -96,6 +98,9 @@ class ContributorsViewset(ModelViewSet):
         # return Contributor.objects.filter(project=project)
         return project.users.all()
 
+    def perform_retrieve(self):
+        raise APIException('NOPE')
+
     def perform_create(self, serializer):
         submitted_username = self.request.data.get('username')
         added_user = User.objects.get(username=submitted_username)
@@ -112,6 +117,11 @@ class ContributorsViewset(ModelViewSet):
                 raise APIException(f"Project '{project_id}' does not exist.")
             except User.DoesNotExist:
                 raise APIException("User doesn't exist")
+
+    # @action(['delete'])
+    # @api_view(['DELETE'])
+    # def remove_collaborator(self):
+    #     print("\n\nno but really\n\n")
 
     # TODO [ASK] Shoule id should be id of user to remove or id of contribution to delete ?
 

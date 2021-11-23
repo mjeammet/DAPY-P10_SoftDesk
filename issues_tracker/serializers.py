@@ -10,15 +10,16 @@ class UserSerializer(ModelSerializer):
         model = User
         fields = ['username', 'password']
 
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
+
 
 class ContributorSerializer(ModelSerializer):
 
-    # user_id = serializers.ForeignKey()
-
     class Meta: 
         model = Contributor
-        # fields = ['user_id', 'project_id', 'permission', 'role']
-        fields = '__all__'
+        fields = ['user_id', 'project_id', 'permission', 'role']
+        # fields = '__all__'
 
 class ProjectListSerializer(ModelSerializer):
 

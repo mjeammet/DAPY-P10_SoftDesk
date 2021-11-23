@@ -3,13 +3,6 @@ from django.db import models
 from django.conf import settings
 from django.db.models.fields import related
 
-PRIORITY_LIST = ["Low", "Medium", "High"]
-
-
-class User(AbstractUser):
-    # is_active = models.BooleanField(default=True)
-    pass
-
 
 class Types(models.TextChoices):
     BACK = "Back-end"
@@ -27,6 +20,16 @@ class Status(models.TextChoices):
 class Permissions(models.TextChoices):
     AUTHOR = 'Author'
     CONTRIBUTOR = 'Contributor'
+
+
+class Priority(models.TextChoices):
+    LOW = 'Basse'
+    AVERAGE = 'Moyenne'
+    HIGH = "Elevée"
+
+
+class User(AbstractUser):
+    pass
 
 
 class Project(models.Model):
@@ -59,11 +62,11 @@ class Issue(models.Model):
     title = models.CharField(max_length=150)
     desc = models.CharField(max_length=2048)
     tag = models.CharField(max_length=150, blank=True, null=True)
-    # priority = models.CharField(max_length=10)
+    priority = models.CharField(max_length=10, choices=Priority.choices, default=Priority.AVERAGE)
     project = models.ForeignKey(to=Project, related_name='issues', on_delete=models.CASCADE, blank=False, null=False)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.TODO)
-    author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    assignee_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
+    author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
+    assignee_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tasks', blank=True, null=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
