@@ -43,6 +43,16 @@ class Project(models.Model):
         return self.issues.exclude(status=Status.DONE).count()
 
 
+class Contributor(models.Model):
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="users")
+    permission = models.CharField(choices=Permissions.choices, max_length=11, blank=False, null=False, default=Permissions.CONTRIBUTOR)
+    role = models.CharField(max_length=128, blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.user} is {self.permission.lower()} on P{self.project_id}'
+
+
 class Issue(models.Model):
     # issue_id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=150)
@@ -63,7 +73,7 @@ class Issue(models.Model):
 
 
 class Comment(models.Model):
-    comment_id = models.IntegerField(primary_key=True)
+    comment_id = models.AutoField(primary_key=True)
     description = models.CharField(max_length=2048)
     author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments')
     issue = models.ForeignKey(to=Issue, on_delete=models.CASCADE, related_name='comments')
@@ -75,11 +85,3 @@ class Comment(models.Model):
     def __str__(self):
         return self.comment_id
 
-class Contributor(models.Model):
-    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="users")
-    permission = models.CharField(choices=Permissions.choices, max_length=11, blank=False, null=False, default=Permissions.CONTRIBUTOR)
-    role = models.CharField(max_length=128, blank=True, null=True)
-
-    def __str__(self):
-        return f'{self.user} is {self.permission.lower()} on P{self.project_id}'

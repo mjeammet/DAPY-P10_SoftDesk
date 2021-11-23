@@ -137,7 +137,7 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
         return Issue.objects.filter(project_id=project_id)
 
 
-class CommentViewset(MultipleSerializerMixin, ReadOnlyModelViewSet):
+class CommentViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = CommentListSerializer
     detail_serializer_class = CommentDetailSerializer
