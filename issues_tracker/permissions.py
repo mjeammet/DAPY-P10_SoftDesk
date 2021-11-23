@@ -17,13 +17,13 @@ class IsProjectAuthorized(BasePermission):
 
     def has_permission(self, request, view):
         user_contributions = [contrib.project_id for contrib in Contributor.objects.filter(user=request.user)]
-        print(user_contributions)
-        print('KWARGS =', view.kwargs)
+        print('KWARGS =', view.kwargs, ' and authorized projects ids = ', user_contributions)
         try:
-            project_id = view.kwargs['project_pk'] if 'project_pk' in view.kwargs else view.kwargs['pk'] if 'pk' in view.kwargs else None
-            # id = 
+            project_id = int(view.kwargs['project_pk']) if 'project_pk' in int(view.kwargs) else view.kwargs['pk'] if 'pk' in view.kwargs else None
 
-            if int(project_id) in user_contributions:
+            # TODO Remove permissions for update and deletion if not Owner
+
+            if project_id in user_contributions:
                 return True
             else:
                 return False
