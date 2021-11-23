@@ -1,5 +1,5 @@
 from django.db.models.base import Model
-from rest_framework.serializers import ModelSerializer, SerializerMethodField
+from rest_framework.serializers import ModelSerializer, SerializerMethodField, CharField
 
 from issues_tracker.models import Project, Issue, Comment, Contributor, User
 
@@ -24,16 +24,16 @@ class ProjectListSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['project_id', 'title', 'type']
+        fields = ['project_id', 'title', 'author_user', 'type']
 
 
 class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['project_id', 'title', 'description', 'type', 'author_user', 'active_issues_count']
+        fields = ['project_id', 'title', 'author_user', 'description', 'type', 'active_issues_count']
         # Can't put '__all__' because it doesn't include the 'active_issues_count' property
-        read_only = ['project_id', 'active_issues_count']
+        read_only = ['project_id', 'author_user', 'active_issues_count']
 
 
 class IssueListSerializer(ModelSerializer):
@@ -49,7 +49,9 @@ class IssueDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ['id', 'title', 'project_id', 'desc', 'tag', 'status', 'author_user_id', 'assignee_user']
+        read_only = ['project_id', 'author_user_id']
 
     # def get_comments(self, instance):
     #     queryset = instance.comments.all()
@@ -57,15 +59,10 @@ class IssueDetailSerializer(ModelSerializer):
     #     return serializer.data
 
 
-class CommentListSerializer(ModelSerializer):
+class CommentSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['comment_id', 'author_user_id', 'created_time', 'issue_id']
-
-
-class CommentDetailSerializer(ModelSerializer):
-
-    class Meta: 
-        model = Comment
-        fields = ['comment_id', 'author_user_id', 'created_time', 'issue_id']
+        fields = ['issue_id', 'comment_id', 'description', 'author_user_id', 'created_time']
+        # Can't "fields = '__all__'" because then read_only doesn't work anymore :/
+        read_only = ['author_user', 'issue']

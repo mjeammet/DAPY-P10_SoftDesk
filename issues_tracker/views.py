@@ -14,7 +14,7 @@ from issues_tracker.serializers import (
     UserSerializer, ContributorSerializer, 
     ProjectDetailSerializer, ProjectListSerializer, 
     IssueListSerializer, IssueDetailSerializer, 
-    CommentListSerializer, CommentDetailSerializer)
+    CommentSerializer)
 from issues_tracker.permissions import IsProjectOwner
 
 
@@ -114,7 +114,7 @@ class ContributorsViewset(ModelViewSet):
             except User.DoesNotExist:
                 raise APIException("User doesn't exist")
 
-    # TODO Ask if id should be id of user to remove or id of contribution
+    # TODO [ASK] Shoule id should be id of user to remove or id of contribution to delete ?
 
     # @api_view(['DELETE'])
     # def remove_contributor(self, pk=None):
@@ -136,11 +136,25 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
         project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         return Issue.objects.filter(project_id=project_id)
 
+    def perform_create(self, serializer):
+        user = self.request.user
+        project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        serializer.save(author_user=user, project=project)
 
-class CommentViewset(MultipleSerializerMixin, ModelViewSet):
+    # TODO [ASK] Should we restrict assign to project's contributors ? Or let it open and add them if neeeded ?
 
-    serializer_class = CommentListSerializer
-    detail_serializer_class = CommentDetailSerializer
+
+class CommentViewset(ModelViewSet):
+
+    serializer_class = CommentSerializer
 
     def get_queryset(self):
-        return Comment.objects.all()
+        issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'])
+        return Comment.objects.filter(issue=issue)
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        print(self.kwargs)
+        # project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'])
+        serializer.save(author_user=user, issue=issue)
