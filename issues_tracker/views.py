@@ -31,11 +31,10 @@ class SignUpView(ModelViewSet):
     # def get(self):
     #     return User.objects.all()
 
-    def create(self, request):
-        serializer = UserSerializer(data = request.data)        
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    # def perform_create(self, serializer):
+    #     serializer = UserSerializer(data = request.data)        
+    #     serializer.is_valid(raise_exception=True)
+    #     serializer.save()
 
 #-----------------------------------#
 #       PROJECTS-RELATED VIEWS      #
@@ -131,6 +130,7 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer
+    permissions = [IsProjectOwner]
 
     def get_queryset(self):
         project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])

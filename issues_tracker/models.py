@@ -7,6 +7,7 @@ PRIORITY_LIST = ["Low", "Medium", "High"]
 
 
 class User(AbstractUser):
+    # is_active = models.BooleanField(default=True)
     pass
 
 
