@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import BasePermission
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 from issues_tracker.models import Project, Contributor
+from rest_framework.exceptions import APIException
 
 class IsProjectOwner(BasePermission):
 
@@ -29,3 +30,18 @@ class IsProjectAuthorized(BasePermission):
                 return False
         except:
             return True
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_superuser:
+            return True
+
+        print("User: ", request.user, " and project's owner: ", obj.author_user)
+        print("action: ", request.method)
+        print('View: ', view.action)
+        if request.method in SAFE_METHODS:
+            return True
+        else:
+            if request.user == obj.author_user:
+                return True
+            else:
+                return False

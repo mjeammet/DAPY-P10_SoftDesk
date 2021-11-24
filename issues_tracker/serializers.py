@@ -32,9 +32,9 @@ class ProjectDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['project_id', 'title', 'author_user', 'description', 'type', 'active_issues_count']
+        fields = ['project_id', 'title', 'author_user_id', 'description', 'type', 'active_issues_count']
         # Can't put '__all__' because it doesn't include the 'active_issues_count' property
-        read_only = ['project_id', 'author_user', 'active_issues_count']
+        read_only = ['project_id', 'author_user_id', 'active_issues_count']
 
 
 class IssueListSerializer(ModelSerializer):
