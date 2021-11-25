@@ -136,10 +136,6 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=10),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=30),
-    
-    'USER_ID_FIELD': 'id',
-    'USER_ID_CLAIM': 'email',
-    # Called off as poor design in JWT's doc
 }
 
 

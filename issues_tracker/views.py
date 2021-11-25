@@ -17,7 +17,7 @@ from issues_tracker.serializers import (
     UserSerializer, ContributorSerializer, 
     ProjectDetailSerializer, ProjectListSerializer, 
     IssueListSerializer, IssueDetailSerializer, 
-    CommentSerializer, MyTokenObtainPairSerializer, MyTokenObtainPairSerializer)
+    CommentSerializer)
 from issues_tracker.permissions import IsProjectOwner, IsProjectAuthorized
 
 
@@ -29,12 +29,6 @@ from issues_tracker.permissions import IsProjectOwner, IsProjectAuthorized
 class SignUpView(ModelViewSet):
     
     serializer_class = UserSerializer
-    permission_classes = [AllowAny]
-
-
-class SignInView(TokenObtainPairView):
-
-    serializer_class = MyTokenObtainPairSerializer
     permission_classes = [AllowAny]
 
 
@@ -59,15 +53,12 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
     permission_classes = [IsAuthenticated, IsProjectAuthorized]
-    # TODO check if I can use decorators to specify which method and/or give specific permission_classes to method
 
     def get_queryset(self):
         users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
         queryset = Project.objects.filter(project_id__in=users_projects)
-        # TODO handle permissions (should not access/edit if not contributor, should not delete if not author)
         # TODO with a filtered queryset, unwanted access returns "404 not found". Is it OK or shouldn't it return "Access denied" ?
         return queryset
-
 
     def perform_create(self, serializer):
         """POST method to create a new project."""
@@ -109,22 +100,7 @@ class ContributorsViewset(ModelViewSet):
             except User.DoesNotExist:
                 raise APIException("User doesn't exist")
 
-    # @action(['delete'])
-    # @api_view(['DELETE'])
-    # def remove_collaborator(self):
-    #     print("\n\nno but really\n\n")
-
     # TODO [ASK] Shoule id should be id of user to remove or id of contribution to delete ?
-
-    # @api_view(['DELETE'])
-    # def remove_contributor(self, pk=None):
-    #     print("\n\nDELETE TEST\n")
-
-    # @api_view(['DELETE'])
-    # @permission_classes(...)
-    # def destroy(self, request, pk=None):
-    #     print("\n\nANOTHER TEST\n")
-    #     return Response()
 
 
 class IssueViewset(MultipleSerializerMixin, ModelViewSet):

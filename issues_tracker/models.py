@@ -29,11 +29,9 @@ class Priority(models.TextChoices):
 
 
 class User(AbstractUser):
-    pass
-
-    # @property
-    # def username(self):
-    #     return self.email
+    email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = []
 
 
 class Project(models.Model):
