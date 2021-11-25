@@ -40,7 +40,7 @@ class ContributorSerializer(ModelSerializer):
 
     class Meta: 
         model = Contributor
-        fields = ['user_id', 'project_id', 'permission', 'role']
+        fields = ['id', 'user_id', 'project_id', 'permission', 'role']
         # fields = '__all__'
 
 

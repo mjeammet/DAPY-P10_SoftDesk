@@ -14,8 +14,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 
 from issues_tracker.models import Permissions, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
-    UserSerializer, ContributorSerializer, 
+    UserSerializer, 
     ProjectDetailSerializer, ProjectListSerializer, 
+    ContributorSerializer,
     IssueListSerializer, IssueDetailSerializer, 
     CommentSerializer)
 from issues_tracker.permissions import IsProjectOwner, IsProjectAuthorized
@@ -81,12 +82,8 @@ class ContributorsViewset(ModelViewSet):
         # return Contributor.objects.filter(project=project)
         return project.users.all()
 
-    def perform_retrieve(self):
-        raise APIException('NOPE')
-
     def perform_create(self, serializer):
-        submitted_username = self.request.data.get('username')
-        added_user = User.objects.get(username=submitted_username)
+        added_user = User.objects.get(email=self.request.data.get('email'))
         project_id = Project.objects.get(pk=self.kwargs['project_pk'])
         if Contributor.objects.filter(user=added_user, project_id=project_id).exists():
             raise APIException("User already attached to project")

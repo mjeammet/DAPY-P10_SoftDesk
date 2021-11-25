@@ -1,5 +1,7 @@
 # SoftDesk
 
+A private API to manage SoftDesk's issues tracking system. 
+
 ## Installation
 
 ### Clone from repo
@@ -27,4 +29,6 @@ Server will start at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 |-----|-----|-----|
 | User sign up | POST | /signup/
 | User log in | POST | /login/
-| Récupérer la liste de tous les projets (projects) rattachés à l'utilisateur (user) connecté | GET | /projects/
+| Get list of all projects linked to the connected user | GET | /projects/
+| Create project (user is author) | POST | /projects/{id}
+| Get proj
