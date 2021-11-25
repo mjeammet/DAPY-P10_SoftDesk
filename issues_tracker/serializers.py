@@ -69,18 +69,11 @@ class IssueListSerializer(ModelSerializer):
 
 class IssueDetailSerializer(ModelSerializer):
 
-    # comments = SerializerMethodField()
-
     class Meta:
         model = Issue
         # fields = '__all__'
         fields = ['id', 'title', 'project_id', 'desc', 'tag', 'status', 'author_user_id', 'assignee_user']
         read_only = ['project_id', 'author_user_id']
-
-    # def get_comments(self, instance):
-    #     queryset = instance.comments.all()
-    #     serializer = CommentListSerializer(queryset, many=True)
-    #     return serializer.data
 
 
 class CommentSerializer(ModelSerializer):
