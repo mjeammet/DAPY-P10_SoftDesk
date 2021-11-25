@@ -31,6 +31,10 @@ class Priority(models.TextChoices):
 class User(AbstractUser):
     pass
 
+    # @property
+    # def username(self):
+    #     return self.email
+
 
 class Project(models.Model):
     project_id = models.AutoField(primary_key=True)

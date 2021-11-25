@@ -15,6 +15,7 @@
 ## Start server
 
 (Source environment with: `source env/bin/activate`)
+
 Launch server with command:
 ```python manage.py runserver```
 

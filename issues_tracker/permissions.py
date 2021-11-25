@@ -17,8 +17,11 @@ class IsProjectOwner(BasePermission):
 class IsProjectAuthorized(BasePermission):
 
     def has_permission(self, request, view):
+        if request.user.is_superuser:
+            return True
+
         user_contributions = [contrib.project_id for contrib in Contributor.objects.filter(user=request.user)]
-        print('KWARGS =', view.kwargs, ' and authorized projects ids = ', user_contributions)
+        # print('KWARGS =', view.kwargs, ' and authorized projects ids = ', user_contributions)
         try:
             project_id = int(view.kwargs['project_pk']) if 'project_pk' in int(view.kwargs) else view.kwargs['pk'] if 'pk' in view.kwargs else None
 
@@ -35,9 +38,9 @@ class IsProjectAuthorized(BasePermission):
         if request.user.is_superuser:
             return True
 
-        print("User: ", request.user, " and project's owner: ", obj.author_user)
-        print("action: ", request.method)
-        print('View: ', view.action)
+        # print("User: ", request.user, " and project's owner: ", obj.author_user)
+        # print("action: ", request.method)
+        # print('View: ', view.action)
         if request.method in SAFE_METHODS:
             return True
         else:

@@ -28,13 +28,6 @@ class SignUpView(ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
 
-    # def get(self):
-    #     return User.objects.all()
-
-    # def perform_create(self, serializer):
-    #     serializer = UserSerializer(data = request.data)        
-    #     serializer.is_valid(raise_exception=True)
-    #     serializer.save()
 
 #-----------------------------------#
 #       PROJECTS-RELATED VIEWS      #
@@ -57,6 +50,7 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
     permission_classes = [IsAuthenticated, IsProjectAuthorized]
+    # TODO check if I can use decorators to specify which method and/or give specific permission_classes to method
 
     def get_queryset(self):
         users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
@@ -65,11 +59,6 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
         # TODO with a filtered queryset, unwanted access returns "404 not found". Is it OK or shouldn't it return "Access denied" ?
         return queryset
 
-    # def get_permissions(self):
-    #     if self.action in ['update', 'partial_update', 'delete']:
-    #         self.permission_classes = [IsAuthenticated, IsProjectOwner]
-    #     else:
-    #         self.permission_classes = [IsAuthenticated, IsProjectAuthorized] 
 
     def perform_create(self, serializer):
         """POST method to create a new project."""
@@ -79,20 +68,13 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
             user = user,
             project = project,
             permission = Permissions.AUTHOR
-        )
-
-    # TODO check if I can use decorators to specify which method and/or give specific permission_classes to method
-    # @api_view(['POST'])
-    # @permission_classes([IsProjectOwner])
-    # def destroy(self, request, pk=None):
-    #     super().destroy(request, pk=None)
+        )    
 
 
 class ContributorsViewset(ModelViewSet):
 
     serializer_class = ContributorSerializer
     permission_classes = [IsAuthenticated, IsProjectAuthorized]
-    # detail_serializer_class = UserSerializer
 
     def get_queryset(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
@@ -106,7 +88,6 @@ class ContributorsViewset(ModelViewSet):
         submitted_username = self.request.data.get('username')
         added_user = User.objects.get(username=submitted_username)
         project_id = Project.objects.get(pk=self.kwargs['project_pk'])
-        # if project_id:
         if Contributor.objects.filter(user=added_user, project_id=project_id).exists():
             raise APIException("User already attached to project")
         else:
