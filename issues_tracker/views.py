@@ -9,12 +9,15 @@ from rest_framework import serializers, status
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import APIException
 
+
+from rest_framework_simplejwt.views import TokenObtainPairView
+
 from issues_tracker.models import Permissions, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
     UserSerializer, ContributorSerializer, 
     ProjectDetailSerializer, ProjectListSerializer, 
     IssueListSerializer, IssueDetailSerializer, 
-    CommentSerializer)
+    CommentSerializer, MyTokenObtainPairSerializer, MyTokenObtainPairSerializer)
 from issues_tracker.permissions import IsProjectOwner, IsProjectAuthorized
 
 
@@ -26,6 +29,12 @@ from issues_tracker.permissions import IsProjectOwner, IsProjectAuthorized
 class SignUpView(ModelViewSet):
     
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+
+
+class SignInView(TokenObtainPairView):
+
+    serializer_class = MyTokenObtainPairSerializer
     permission_classes = [AllowAny]
 
 
