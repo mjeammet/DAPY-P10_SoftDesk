@@ -11,6 +11,9 @@ router = routers.SimpleRouter()
 router.register('projects', ProjectViewset, basename='projects')
 users_router = routers.NestedSimpleRouter(router, 'projects', lookup='project')
 users_router.register('users', ContributorsViewset, basename='users')
+# TODO remove unwanted retrieve / patch / put route 
+# [print(route) for route in router.urls if route in ['GET', 'create', 'destroy']]
+# users_router._urls = [route for route in router.urls if route in ['GET', 'create', 'destroy']]
 issues_router = routers.NestedSimpleRouter(router, 'projects', lookup='project')
 issues_router.register('issues', IssueViewset, basename='issues')
 comments_router = routers.NestedSimpleRouter(issues_router, 'issues', lookup='issue')

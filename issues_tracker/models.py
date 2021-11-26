@@ -17,6 +17,7 @@ class Status(models.TextChoices):
     ONGOING = "En cours"
     DONE = "Terminé"
 
+
 class Permissions(models.TextChoices):
     AUTHOR = 'Author'
     CONTRIBUTOR = 'Contributor'
