@@ -1,16 +1,9 @@
-from django.shortcuts import render, get_object_or_404
-from django.template.defaultfilters import add
-from rest_framework.views import APIView
-from rest_framework.generics import CreateAPIView, GenericAPIView
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.shortcuts import get_object_or_404
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import serializers, status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import APIException
-
-
-from rest_framework_simplejwt.views import TokenObtainPairView
 
 from issues_tracker.models import Permissions, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
@@ -19,7 +12,7 @@ from issues_tracker.serializers import (
     ContributorSerializer,
     IssueListSerializer, IssueDetailSerializer, 
     CommentSerializer)
-from issues_tracker.permissions import IsProjectOwner, IsProjectAuthorized
+from issues_tracker.permissions import IsProjectAuthorized, CanModifyContributors
 
 
 #-----------------------------------#
@@ -36,6 +29,7 @@ class SignUpView(ModelViewSet):
 #-----------------------------------#
 #       PROJECTS-RELATED VIEWS      #
 #-----------------------------------#
+
 
 class MultipleSerializerMixin:
     """Mixin to distinguish list from detail serializer."""
@@ -69,7 +63,7 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
             user = user,
             project = project,
             permission = Permissions.AUTHOR
-        )    
+        )
 
 
 class ContributorsViewset(ModelViewSet):
@@ -79,7 +73,6 @@ class ContributorsViewset(ModelViewSet):
 
     def get_queryset(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
-        # return Contributor.objects.filter(project=project)
         return project.users.all()
 
     def perform_create(self, serializer):
@@ -96,8 +89,6 @@ class ContributorsViewset(ModelViewSet):
                 raise APIException(f"Project '{project_id}' does not exist.")
             except User.DoesNotExist:
                 raise APIException("User doesn't exist")
-
-    # TODO [ASK] Shoule id should be id of user to remove or id of contribution to delete ?
 
 
 class IssueViewset(MultipleSerializerMixin, ModelViewSet):
