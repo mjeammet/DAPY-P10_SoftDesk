@@ -100,7 +100,7 @@ class ContributorsViewset(ModelViewSet):
         except Contributor.DoesNotExist:
             raise APIException(f'No contribution with id {pk}')
 
-        project_id = self.kwargs['project_pk']
+        project_id = int(self.kwargs['project_pk'])
         if contrib.project_id==project_id and contrib.permission == Permissions.AUTHOR:
             raise APIException('Cannot remove project\'s author contributor from project')
         return super().destroy(self, request, pk=None, *args, **kwargs)
