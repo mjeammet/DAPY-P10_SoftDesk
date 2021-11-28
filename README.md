@@ -4,15 +4,6 @@ A private API to manage SoftDesk's issues tracking system.
 
 # Usage
 
-Consume the API requires to be authenticated, except for signup and login endpoints.
-
-Everyone can create an account.
-Every user can create a project and add/remove contributors to their project.
-Every project's contributor can list and read project's issues and comments, along with creating new ones.
-Only project/issue/comment's owner can modify and delete related object.
-
-# How to use
-
 ## Installation
 
 ```
@@ -41,16 +32,29 @@ Server will start at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 
 Database has been populated with exemple superuser, simple user and project. 
 
-Superuser email: marie@wizardsofthecoast.com
-Superuser password: recruitemeplz
-Simple user email: thomas@mojo.com
-Simple user password: password-oc
+Superuser email: marie@wizardsofthecoast.com  
+Superuser password: gimme10d6  
+Simple user email: thomas@mojo.com  
+Simple user password: password-oc  
 
 Feel free to delete these objects or wiping your database if needed.
 
+## Features and permissions
+
+| Action | Permission |
+|-|-|
+| Create an account | Everyone |
+| Login | Everyone |
+| Create a project | Every authenticated user |
+| Add/remove contributors to project | Project owner |
+| Create issues and comments | Project contributor |
+| List/read issues and comments | Project contributor |
+| Modify or delete project, issue and comment | Project/Issue/Comment author |
+| * | Superuser |
+
 # API documentation 
 
-API documentation can be found [here](here)
+API documentation can be found on [https://documenter.getpostman.com/view/17508081/UVJbJy2v](https://documenter.getpostman.com/view/17508081/UVJbJy2v)
 
 # Credits
 
