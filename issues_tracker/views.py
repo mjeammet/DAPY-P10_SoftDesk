@@ -86,6 +86,7 @@ class ContributorsViewset(ModelViewSet):
         if contrib.project_id == project_id and contrib.permission == Permissions.AUTHOR:
             raise APIException('Cannot remove project\'s author contributor from project')
         return super().destroy(self, request, pk=None, *args, **kwargs)
+        # TODO What happens to your issues / comment when you are remove from a project ?
 
 
 class IssueViewset(MultipleSerializerMixin, ModelViewSet):
