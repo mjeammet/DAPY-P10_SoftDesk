@@ -37,9 +37,7 @@ class IsAuthorContributor(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         project_id = get_project_id(view.kwargs)
-
         user_contrib = Contributor.objects.get(project_id=project_id, user=request.user)
-
         if user_contrib.permission == Permissions.AUTHOR:
             return True
 

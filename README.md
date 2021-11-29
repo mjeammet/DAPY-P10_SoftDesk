@@ -21,23 +21,30 @@ $ source env/bin/acivate
 $ pip install -r requirements.txt
 ```
 
+## Create database
+
+In order to initialise database, use commands
+```
+# To write migrations files
+$ python manage.py makemigrations issues_tracker
+
+# Migrate
+$ python manage.py migrate
+```
+
+Your database is now created but empty. You can use signup endpoint to create users or create superuser with:
+```
+$ python manage.py createsuperuser
+```
+
 ## Run server
 
 After sourcing environment, simply run
 ```
-python manage.py runserver
+$ python manage.py runserver
 ```
 
 Server will start at [http://127.0.0.1:8000](http://127.0.0.1:8000).
-
-Database has been populated with exemple superuser, simple user and project. 
-
-Superuser email: marie@wizardsofthecoast.com  
-Superuser password: gimme10d6  
-Simple user email: thomas@mojo.com  
-Simple user password: password-oc  
-
-Feel free to delete these objects or wiping your database if needed.
 
 ## Features and permissions
 
