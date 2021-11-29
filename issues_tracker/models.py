@@ -26,7 +26,7 @@ class Permissions(models.TextChoices):
 class Priority(models.TextChoices):
     LOW = 'Basse'
     AVERAGE = 'Moyenne'
-    HIGH = "Elevée"
+    HIGH = "Haute"
 
 
 class User(AbstractUser):

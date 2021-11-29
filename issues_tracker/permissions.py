@@ -15,28 +15,31 @@ class IsProjectContributor(BasePermission):
         user_contributions = [contrib.project_id for contrib in user.contributions.all()]
         # print('KWARGS =', view.kwargs, ' and authorized projects ids = ', user_contributions)
 
-        project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
-        if project_id in user_contributions:
+        try:
+            project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
+        except ValueError:
+            raise APIException('Project ids must be integers.')
+
+        if project_id == None or int(project_id) in user_contributions:
             return True
 
     def has_object_permission(self, request, view, obj):
         user = request.user
-        project_id = view.kwargs['project_pk']
+        project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
         user_contributions = [contrib.project_id for contrib in user.contributions.all()]
 
-        if project_id in user_contributions and (view.action == 'retrieve' or request.user == obj.author_user):
+        # if project_id in user_contributions and (view.action == 'retrieve' or request.user == obj.author_user):
+        if int(project_id) in user_contributions:
             return True
 
 
 class IsObjectOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        # if isinstance(obj, Issue) and obj.project != 
-
-        if request.user.is_superuser:
-            return True
-
-        if request.user == obj.author_user:
+        project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
+        user_contrib = Contributor.objects.get(project_id=project_id, user=request.user)
+        
+        if view.action in ['list', 'create', 'retrieve'] or obj.author_user == request.user:
             return True
 
 

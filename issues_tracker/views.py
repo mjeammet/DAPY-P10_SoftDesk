@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.exceptions import APIException
+from rest_framework.exceptions import APIException, ValidationError
 from rest_framework.decorators import api_view
 
 from issues_tracker.models import Permissions, User, Project, Issue, Comment, Contributor
@@ -52,7 +52,6 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     def get_queryset(self):
         users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
         queryset = Project.objects.filter(project_id__in=users_projects)
-        # TODO with a filtered queryset, unwanted access returns "404 not found". Is it OK or shouldn't it return "Access denied" ?
         return queryset
 
     def perform_create(self, serializer):
@@ -107,7 +106,7 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer
-    permission_classes = (IsAuthenticated, IsProjectContributor)
+    permission_classes = (IsAuthenticated, IsProjectContributor, IsObjectOwner)
 
     def get_queryset(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
@@ -122,6 +121,18 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
         user = self.request.user
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         serializer.save(author_user=user, project=project, assignee_user=user)
+
+    def perform_update(self, serializer):
+        if serializer.is_valid():
+            project_id = self.kwargs['project_pk']
+            issue_pk = self.kwargs['pk']
+
+            contributors = [contributor.user for contributor in Contributor.objects.filter(project_id=project_id)]
+            if serializer.validated_data['assignee_user'] not in contributors:
+                raise ValidationError({"detail": "Assignee must be a contributor for this project."})
+
+            issue = Issue.objects.get(pk=issue_pk)
+            serializer.save(instance = issue)
 
 
 class CommentViewset(ModelViewSet):

@@ -49,6 +49,11 @@ class ProjectListSerializer(ModelSerializer):
         model = Project
         fields = ['project_id', 'title', 'author_user', 'type']
 
+    def validate_title(self, value):
+        if len(value) < 5:
+            raise ValidationError("Titles must be at least 5 caracters long")
+        return value
+
 
 class ProjectDetailSerializer(ModelSerializer):
 
@@ -63,13 +68,7 @@ class IssueListSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['id', 'title', 'priority', 'author_user_id', 'created_time', 'assignee_user_id']
-
-    def validate_assignee_user(self, value):
-        if value not in Contributor.objects.filter(project_id=self.kwargs['project_pk']):
-            return value
-        else:
-            return ValidationError('Cannot assign issue to non-contributors.')
+        fields = ['id', 'title', 'priority', 'author_user_id', 'assignee_user_id']
 
 
 class IssueDetailSerializer(ModelSerializer):
@@ -79,6 +78,17 @@ class IssueDetailSerializer(ModelSerializer):
         fields = ['id', 'title', 'priority', 'project_id', 'desc', 'tag', 'status', 'author_user_id', 'assignee_user']
         read_only = ['project_id', 'author_user_id']
 
+    # TODO Add a validate that makes sure assignee_user is in Contributor.objects.filter(project_id=project_id)
+    # Issue being that I don't know how to get project_id :/
+    # def validate_assignee_user(self, value):
+    #     if value not in Contributor.objects.filter(project_id=self.kwargs['project_pk']):
+    #         return value
+    #     else:
+    #         return ValidationError('Cannot assign issue to non-contributors.')
+    # def validate(self, data):
+    #     contributors = [contrib.user_id for contrib in Contributor.objects.filter(project_id=project_id)]
+    #     if data['assignee_user'] not in contributors:
+    #         raise ValidationError("Assignee must be a contributor of this project.")
 
 class CommentSerializer(ModelSerializer):
 
