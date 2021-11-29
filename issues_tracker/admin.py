@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 # Register your models here.
-from .models import User, Project, Issue, Comment, Contributor
+from .models import Project, Issue, Comment, Contributor
+
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):

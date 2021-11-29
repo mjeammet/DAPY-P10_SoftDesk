@@ -1,7 +1,6 @@
-from django.shortcuts import get_object_or_404
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import BasePermission
 from rest_framework.exceptions import APIException
-from issues_tracker.models import Issue, Project, Contributor, Permissions
+from issues_tracker.models import Contributor, Permissions
 
 
 class IsProjectContributor(BasePermission):
@@ -13,22 +12,16 @@ class IsProjectContributor(BasePermission):
             return True
 
         user_contributions = [contrib.project_id for contrib in user.contributions.all()]
-        # print('KWARGS =', view.kwargs, ' and authorized projects ids = ', user_contributions)
+        project_id = get_project_id(view.kwargs)
 
-        try:
-            project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
-        except ValueError:
-            raise APIException('Project ids must be integers.')
-
-        if project_id == None or int(project_id) in user_contributions:
+        if project_id is None or int(project_id) in user_contributions:
             return True
 
     def has_object_permission(self, request, view, obj):
         user = request.user
-        project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
+        project_id = get_project_id(view.kwargs)
         user_contributions = [contrib.project_id for contrib in user.contributions.all()]
 
-        # if project_id in user_contributions and (view.action == 'retrieve' or request.user == obj.author_user):
         if int(project_id) in user_contributions:
             return True
 
@@ -36,9 +29,6 @@ class IsProjectContributor(BasePermission):
 class IsObjectOwner(BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
-        user_contrib = Contributor.objects.get(project_id=project_id, user=request.user)
-        
         if view.action in ['list', 'create', 'retrieve'] or obj.author_user == request.user:
             return True
 
@@ -46,10 +36,20 @@ class IsObjectOwner(BasePermission):
 class IsAuthorContributor(BasePermission):
 
     def has_object_permission(self, request, view, obj):
-        project_id = int(view.kwargs['project_pk']) if 'project_pk' in view.kwargs else int(view.kwargs['pk']) if 'pk' in view.kwargs else None
-        # Not having any direction regarding contributors, I'll allow only the author to 
+        project_id = get_project_id(view.kwargs)
 
         user_contrib = Contributor.objects.get(project_id=project_id, user=request.user)
-        
+
         if user_contrib.permission == Permissions.AUTHOR:
             return True
+
+
+def get_project_id(kwargs):
+    project_id = kwargs['project_pk'] if 'project_pk' in kwargs else kwargs['pk'] if 'pk' in kwargs else None
+    if project_id is None:
+        return project_id
+    else:
+        try:
+            return int(project_id)
+        except ValueError:
+            raise APIException({"details": 'Project ids must be integers.'})

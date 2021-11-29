@@ -1,8 +1,5 @@
-from django.db.models.base import Model
 from django.contrib.auth.hashers import make_password
-from rest_framework.serializers import Serializer, ModelSerializer, SerializerMethodField, CharField, ValidationError
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-
+from rest_framework.serializers import ModelSerializer, ValidationError
 from issues_tracker.models import Project, Issue, Comment, Contributor, User
 
 
@@ -38,7 +35,7 @@ class UserSerializer(ModelSerializer):
 
 class ContributorSerializer(ModelSerializer):
 
-    class Meta: 
+    class Meta:
         model = Contributor
         fields = ['project_id', 'user_id', 'permission', 'role', 'id']
 
@@ -89,6 +86,7 @@ class IssueDetailSerializer(ModelSerializer):
     #     contributors = [contrib.user_id for contrib in Contributor.objects.filter(project_id=project_id)]
     #     if data['assignee_user'] not in contributors:
     #         raise ValidationError("Assignee must be a contributor of this project.")
+
 
 class CommentSerializer(ModelSerializer):
 

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
-from django.db.models.fields import related
 
 
 class Types(models.TextChoices):
@@ -53,7 +52,12 @@ class Project(models.Model):
 class Contributor(models.Model):
     user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='contributions')
     project = models.ForeignKey(to=Project, on_delete=models.CASCADE, related_name="users")
-    permission = models.CharField(choices=Permissions.choices, max_length=11, blank=False, null=False, default=Permissions.CONTRIBUTOR)
+    permission = models.CharField(
+        choices=Permissions.choices,
+        max_length=11,
+        blank=False,
+        null=False,
+        default=Permissions.CONTRIBUTOR)
     role = models.CharField(max_length=128, blank=True, null=True)
 
     def __str__(self):
@@ -69,7 +73,8 @@ class Issue(models.Model):
     project = models.ForeignKey(to=Project, related_name='issues', on_delete=models.CASCADE, blank=False, null=False)
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.TODO)
     author_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='issues')
-    assignee_user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tasks', blank=True, null=True)
+    assignee_user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tasks', blank=True, null=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -90,7 +95,7 @@ class Comment(models.Model):
         ordering = ['created_time']
 
     def __str__(self):
-        return self.comment_id
+        return f'Comment {self.comment_id}, by {self.author_user}'
 
     @property
     def project_id(self):

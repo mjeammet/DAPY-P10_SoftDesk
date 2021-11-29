@@ -1,34 +1,22 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.response import Response
 from rest_framework.exceptions import APIException, ValidationError
-from rest_framework.decorators import api_view
 
 from issues_tracker.models import Permissions, User, Project, Issue, Comment, Contributor
 from issues_tracker.serializers import (
-    UserSerializer, 
-    ProjectDetailSerializer, ProjectListSerializer, 
+    UserSerializer,
+    ProjectDetailSerializer, ProjectListSerializer,
     ContributorSerializer,
-    IssueListSerializer, IssueDetailSerializer, 
+    IssueListSerializer, IssueDetailSerializer,
     CommentSerializer)
 from issues_tracker.permissions import IsProjectContributor, IsAuthorContributor, IsObjectOwner
 
 
-#-----------------------------------#
-#   AUTHENTICATION-RELATED CLASSES  #
-#-----------------------------------#
-
-
 class SignUpView(ModelViewSet):
-    
+
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
-
-
-#-----------------------------------#
-#       PROJECTS-RELATED VIEWS      #
-#-----------------------------------#
 
 
 class MultipleSerializerMixin:
@@ -37,7 +25,8 @@ class MultipleSerializerMixin:
     detail_serializer_class = None
 
     def get_serializer_class(self):
-        if self.action in ['retrieve', 'update', 'partial_update', 'create'] and self.detail_serializer_class is not None:
+        allowed_actions = ['retrieve', 'update', 'partial_update', 'create']
+        if self.action in allowed_actions and self.detail_serializer_class is not None:
             # Si l'action demandée est le détail alors nous retournons le serializer de détail
             return self.detail_serializer_class
         return super().get_serializer_class()
@@ -50,7 +39,8 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
     permission_classes = (IsAuthenticated, IsProjectContributor, IsObjectOwner)
 
     def get_queryset(self):
-        users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
+        user = self.request.user
+        users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=user)]
         queryset = Project.objects.filter(project_id__in=users_projects)
         return queryset
 
@@ -58,11 +48,7 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
         """POST method to create a new project."""
         user = self.request.user
         project = serializer.save(author_user=user)
-        Contributor.objects.create(
-            user = user,
-            project = project,
-            permission = Permissions.AUTHOR
-        )
+        Contributor.objects.create(user=user, project=project, permission=Permissions.AUTHOR)
 
 
 class ContributorsViewset(ModelViewSet):
@@ -97,7 +83,7 @@ class ContributorsViewset(ModelViewSet):
             raise APIException(f'No contribution with id {pk}')
 
         project_id = int(self.kwargs['project_pk'])
-        if contrib.project_id==project_id and contrib.permission == Permissions.AUTHOR:
+        if contrib.project_id == project_id and contrib.permission == Permissions.AUTHOR:
             raise APIException('Cannot remove project\'s author contributor from project')
         return super().destroy(self, request, pk=None, *args, **kwargs)
 
@@ -111,7 +97,6 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
     def get_queryset(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         if 'pk' in self.kwargs:
-            # print('PK IS:', self.kwargs['pk'])
             issue = Issue.objects.filter(pk=self.kwargs['pk'], project=project)
             return issue
         else:
@@ -132,7 +117,7 @@ class IssueViewset(MultipleSerializerMixin, ModelViewSet):
                 raise ValidationError({"detail": "Assignee must be a contributor for this project."})
 
             issue = Issue.objects.get(pk=issue_pk)
-            serializer.save(instance = issue)
+            serializer.save(instance=issue)
 
 
 class CommentViewset(ModelViewSet):
@@ -141,12 +126,13 @@ class CommentViewset(ModelViewSet):
     permission_classes = (IsAuthenticated, IsProjectContributor, IsObjectOwner)
 
     def get_queryset(self):
-        issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'])
-        return Comment.objects.filter(issue=issue)
+        issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'], project_id=self.kwargs['project_pk'])
+        if 'pk' in self.kwargs:
+            return Comment.objects.filter(pk=self.kwargs['pk'], issue=issue)
+        else:
+            return Comment.objects.filter(issue=issue)
 
     def perform_create(self, serializer):
         user = self.request.user
-        print(self.kwargs)
-        # project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'])
         serializer.save(author_user=user, issue=issue)
