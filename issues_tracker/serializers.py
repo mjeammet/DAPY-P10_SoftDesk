@@ -63,14 +63,20 @@ class IssueListSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['id', 'title', 'author_user_id', 'created_time', 'assignee_user_id']
+        fields = ['id', 'title', 'priority', 'author_user_id', 'created_time', 'assignee_user_id']
+
+    def validate_assignee_user(self, value):
+        if value not in Contributor.objects.filter(project_id=self.kwargs['project_pk']):
+            return value
+        else:
+            return ValidationError('Cannot assign issue to non-contributors.')
 
 
 class IssueDetailSerializer(ModelSerializer):
 
     class Meta:
         model = Issue
-        fields = ['id', 'title', 'project_id', 'desc', 'tag', 'status', 'author_user_id', 'assignee_user']
+        fields = ['id', 'title', 'priority', 'project_id', 'desc', 'tag', 'status', 'author_user_id', 'assignee_user']
         read_only = ['project_id', 'author_user_id']
 
 

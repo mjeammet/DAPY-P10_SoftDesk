@@ -12,7 +12,7 @@ from issues_tracker.serializers import (
     ContributorSerializer,
     IssueListSerializer, IssueDetailSerializer, 
     CommentSerializer)
-from issues_tracker.permissions import IsProjectAuthorized, IsAuthorContributor, IsObjectOwner
+from issues_tracker.permissions import IsProjectContributor, IsAuthorContributor, IsObjectOwner
 
 
 #-----------------------------------#
@@ -47,7 +47,7 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = ProjectListSerializer
     detail_serializer_class = ProjectDetailSerializer
-    permission_classes = (IsAuthenticated, IsProjectAuthorized, IsObjectOwner)
+    permission_classes = (IsAuthenticated, IsProjectContributor, IsObjectOwner)
 
     def get_queryset(self):
         users_projects = [contribution.project_id for contribution in Contributor.objects.filter(user=self.request.user)]
@@ -69,14 +69,11 @@ class ProjectViewset(MultipleSerializerMixin, ModelViewSet):
 class ContributorsViewset(ModelViewSet):
 
     serializer_class = ContributorSerializer
-    permission_classes = (IsAuthenticated, IsProjectAuthorized, IsAuthorContributor)
+    permission_classes = (IsAuthenticated, IsProjectContributor, IsAuthorContributor)
 
     def get_queryset(self):
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
         return project.users.all().order_by('permission')
-
-    def retrieve(self, request, pk=None, *args, **kwargs):
-        raise APIException({'status':404})
 
     def perform_create(self, serializer):
         email = self.request.data.get('email')
@@ -105,28 +102,32 @@ class ContributorsViewset(ModelViewSet):
             raise APIException('Cannot remove project\'s author contributor from project')
         return super().destroy(self, request, pk=None, *args, **kwargs)
 
+
 class IssueViewset(MultipleSerializerMixin, ModelViewSet):
 
     serializer_class = IssueListSerializer
     detail_serializer_class = IssueDetailSerializer
-    permission_classes = (IsAuthenticated, IsProjectAuthorized, IsObjectOwner)
+    permission_classes = (IsAuthenticated, IsProjectContributor)
 
     def get_queryset(self):
-        project_id = get_object_or_404(Project, pk=self.kwargs['project_pk'])
-        return Issue.objects.filter(project_id=project_id)
+        project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
+        if 'pk' in self.kwargs:
+            # print('PK IS:', self.kwargs['pk'])
+            issue = Issue.objects.filter(pk=self.kwargs['pk'], project=project)
+            return issue
+        else:
+            return Issue.objects.filter(project=project)
 
     def perform_create(self, serializer):
         user = self.request.user
         project = get_object_or_404(Project, pk=self.kwargs['project_pk'])
-        serializer.save(author_user=user, project=project)
-
-    # TODO [ASK] Should we restrict assign to project's contributors ? Or let it open and add them if neeeded ?
+        serializer.save(author_user=user, project=project, assignee_user=user)
 
 
 class CommentViewset(ModelViewSet):
 
     serializer_class = CommentSerializer
-    permission_classes = (IsAuthenticated, IsProjectAuthorized, IsObjectOwner)
+    permission_classes = (IsAuthenticated, IsProjectContributor, IsObjectOwner)
 
     def get_queryset(self):
         issue = get_object_or_404(Issue, pk=self.kwargs['issue_pk'])
