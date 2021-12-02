@@ -1,3 +1,5 @@
+![SoftDesk_logo](./readme_images/logo_softdesk.png)
+
 # General info
 
 A private API to manage SoftDesk's issues tracking system. 
@@ -62,6 +64,14 @@ Server will start at [http://127.0.0.1:8000](http://127.0.0.1:8000).
 # API documentation 
 
 API documentation can be found on [https://documenter.getpostman.com/view/17508081/UVJbJy2v](https://documenter.getpostman.com/view/17508081/UVJbJy2v)
+
+# Code consistency
+
+Code consistency was ascertained using flake8 package. No error was found. 
+
+![](./readme_images/flake8_report.png)
+
+`flake8 --format=html --htmldir=flake8_report` to generate a new report.
 
 # Credits
 

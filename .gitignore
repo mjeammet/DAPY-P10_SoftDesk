@@ -4,3 +4,4 @@ __init__.py
 migrations/
 db.sqlite3
 flake8_report/
+readme_images/
