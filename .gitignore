@@ -4,5 +4,3 @@ __init__.py
 migrations/
 db.sqlite3
 flake8_report/
-logo_softdesk.png
-flake8_report.png

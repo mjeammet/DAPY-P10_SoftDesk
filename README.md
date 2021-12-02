@@ -1,4 +1,4 @@
-![SoftDesk_logo](./logo_softdesk.png)
+![SoftDesk_logo](https://user.oc-static.com/upload/2020/09/22/16007803099977_P8%20%281%29.png)
 
 # General info
 
@@ -67,9 +67,7 @@ API documentation can be found on [https://documenter.getpostman.com/view/175080
 
 # Code consistency
 
-Code consistency was ascertained using flake8 package. No error was found. 
-
-![](./flake8_report.png)
+Code consistency was ascertained using flake8 package.
 
 `flake8 --format=html --htmldir=flake8_report` to generate a new report.
 
