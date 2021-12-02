@@ -1,4 +1,4 @@
-![SoftDesk_logo](./readme_images/logo_softdesk.png)
+![SoftDesk_logo](./logo_softdesk.png)
 
 # General info
 
@@ -69,7 +69,7 @@ API documentation can be found on [https://documenter.getpostman.com/view/175080
 
 Code consistency was ascertained using flake8 package. No error was found. 
 
-![](./readme_images/flake8_report.png)
+![](./flake8_report.png)
 
 `flake8 --format=html --htmldir=flake8_report` to generate a new report.
 
