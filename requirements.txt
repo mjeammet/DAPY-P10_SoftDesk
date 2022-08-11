@@ -1,5 +1,5 @@
 asgiref==3.4.1
-Django==3.2.9
+Django==3.2.15
 djangorestframework==3.12.4
 djangorestframework-simplejwt==4.4.0
 flake8-html==0.4.1
